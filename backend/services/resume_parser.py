@@ -1,4 +1,3 @@
-
 import docx
 import PyPDF2
 import spacy
@@ -21,18 +20,19 @@ def parse_resume(file_path):
                 text += page.extract_text()
     elif file_path.endswith('.docx'):
         doc = docx.Document(file_path)
-        text = '
-'.join([para.text for para in doc.paragraphs])
-    
+        text = '\n'.join([para.text for para in doc.paragraphs])
+    else:
+        text = ""
+
     # Tokenize and extract skills (dummy skills for now)
-    skills = ['Python', 'JavaScript', 'HTML', 'CSS']  # Example skills
-    
-    # Use spaCy or any NLP method to parse text for name and location
-    doc = nlp(text)
-    for ent in doc.ents:
-        if ent.label_ == 'PERSON':
+    skills = ['Python', 'JavaScript', 'HTML', 'CSS']  # Replace with actual extraction later
+
+    # Use spaCy to parse text for name and location
+    doc_nlp = nlp(text)
+    for ent in doc_nlp.ents:
+        if ent.label_ == 'PERSON' and name == "Unknown":
             name = ent.text
-        elif ent.label_ == 'GPE':  # Geopolitical entity, could be location
+        elif ent.label_ == 'GPE' and location == "Unknown":
             location = ent.text
     
     return {
@@ -40,4 +40,3 @@ def parse_resume(file_path):
         "skills": skills,
         "location": location
     }
-    
