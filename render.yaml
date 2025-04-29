@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: resume-analyzer-app
+    env: python
+    buildCommand: pip install -r requirements.txt && python -m nltk.downloader punkt && python -m spacy download en_core_web_sm
+    startCommand: python backend/app.py
+    envVars:
+      - key: MONGO_URI
+        value: mongodb+srv://patilmonika931:patil0305@cluster0.il92b.mongodb.net/?retryWrites=true&w=majority
