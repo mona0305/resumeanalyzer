@@ -4,6 +4,6 @@ from flask_pymongo import PyMongo
 mongo = PyMongo()
 
 def init_db(app):
-    app.config['MONGO_URI'] = 'mongodb://localhost:27017/resume_job_system'
+    app.config['MONGO_URI'] = 'mongodb+srv://patilmonika931:patil0305@cluster0.il92b.mongodb.net/?retryWrites=true&w=majority'
     mongo.init_app(app)
     
