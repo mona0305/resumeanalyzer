@@ -62,6 +62,7 @@ def get_job_recommendations():
     matched_jobs = match_jobs(user.skills, user.location)
     return jsonify({"recommendations": matched_jobs}), 200
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
     
