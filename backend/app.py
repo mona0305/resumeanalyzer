@@ -7,36 +7,40 @@ from models.user import User
 from models.job import Job
 import os
 
-app = Flask(__name__)
+# Create Flask app with static folder set
+app = Flask(__name__, static_folder='frontend', static_url_path='')
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'docx'}
 
 # Initialize database
 init_db(app)
 
+# Serve index.html at root URL
 @app.route('/')
 def serve_index():
-    return send_from_directory('../frontend', 'index.html')  # Serve frontend
+    return app.send_static_file('index.html')
 
+# Allow only specific file types
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+# Resume upload API
 @app.route('/upload_resume', methods=['POST'])
 def upload_resume():
     if 'file' not in request.files:
         return jsonify({"message": "No file part"}), 400
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({"message": "No selected file"}), 400
+
     if file and allowed_file(file.filename):
-        # ✅ Ensure upload folder exists
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # Parse resume and save user
         parsed_data = parse_resume(filepath)
         new_user = User(
             name=parsed_data['name'],
@@ -51,6 +55,7 @@ def upload_resume():
 
     return jsonify({"message": "Invalid file type"}), 400
 
+# Job recommendations API
 @app.route('/get_job_recommendations', methods=['GET'])
 def get_job_recommendations():
     user_id = request.args.get('user_id')
@@ -61,5 +66,6 @@ def get_job_recommendations():
     matched_jobs = match_jobs(user.skills, user.location)
     return jsonify({"recommendations": matched_jobs}), 200
 
+# Run app
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
