@@ -29,9 +29,14 @@ def upload_resume():
     if file.filename == '':
         return jsonify({"message": "No selected file"}), 400
     if file and allowed_file(file.filename):
+        # ✅ Ensure upload folder exists
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
+
+        # Parse resume and save user
         parsed_data = parse_resume(filepath)
         new_user = User(
             name=parsed_data['name'],
@@ -41,7 +46,9 @@ def upload_resume():
             resume_path=filepath
         )
         new_user.save()
+
         return jsonify({"message": "Resume uploaded and parsed", "data": parsed_data}), 200
+
     return jsonify({"message": "Invalid file type"}), 400
 
 @app.route('/get_job_recommendations', methods=['GET'])
@@ -50,6 +57,7 @@ def get_job_recommendations():
     user = User.objects(id=user_id).first()
     if not user:
         return jsonify({"message": "User not found"}), 404
+
     matched_jobs = match_jobs(user.skills, user.location)
     return jsonify({"recommendations": matched_jobs}), 200
 
